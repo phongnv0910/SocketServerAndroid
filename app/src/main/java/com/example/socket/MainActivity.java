@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +25,7 @@ import java.nio.ByteOrder;
 
 @SuppressLint("SetTextI18n")
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     private ServerSocket serverSocket;
     private Thread Thread1 = null;
     private TextView tvIP, tvPort, tvMessages;
@@ -48,9 +50,12 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             SERVER_IP = getLocalIpAddress();
+            Log.d(TAG, "IP Address: " + SERVER_IP);  // Log IP Address
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+
+        Log.d(TAG, "Port: " + SERVER_PORT);  // Log Port
 
         Thread1 = new Thread(new Thread1());
         Thread1.start();
@@ -79,7 +84,8 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             Socket socket;
             try {
-                serverSocket = new ServerSocket(SERVER_PORT);
+                // Listen on all interfaces
+                serverSocket = new ServerSocket(SERVER_PORT, 50, InetAddress.getByName("0.0.0.0"));
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -90,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 socket = serverSocket.accept();
-                output = new PrintWriter(socket.getOutputStream());
+                output = new PrintWriter(socket.getOutputStream(), true); // auto-flush enabled
                 input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
                 runOnUiThread(new Runnable() {
@@ -141,8 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void run() {
-            output.write(message);
-            output.flush();
+            output.println(message);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
