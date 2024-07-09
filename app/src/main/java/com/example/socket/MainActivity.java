@@ -84,31 +84,24 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             Socket socket;
             try {
-                // Listen on all interfaces
+                // Check for network permissions or handle accordingly
                 serverSocket = new ServerSocket(SERVER_PORT, 50, InetAddress.getByName("0.0.0.0"));
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvMessages.setText("Not connected");
-                        tvIP.setText("IP: " + SERVER_IP);
-                        tvPort.setText("Port: " + SERVER_PORT);
-                    }
+                runOnUiThread(() -> {
+                    tvMessages.setText("Not connected");
+                    tvIP.setText("IP: " + SERVER_IP);
+                    tvPort.setText("Port: " + SERVER_PORT);
                 });
 
                 socket = serverSocket.accept();
                 output = new PrintWriter(socket.getOutputStream(), true); // auto-flush enabled
                 input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvMessages.setText("Connected");
-                    }
-                });
+                runOnUiThread(() -> tvMessages.setText("Connected"));
 
                 new Thread(new Thread2()).start();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Server socket error: ", e);
+                // Handle error appropriately
             }
         }
     }
