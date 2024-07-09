@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             Socket socket;
             try {
-                // Check for network permissions or handle accordingly
+                // Listen on all interfaces
                 serverSocket = new ServerSocket(SERVER_PORT, 50, InetAddress.getByName("0.0.0.0"));
                 runOnUiThread(() -> {
                     tvMessages.setText("Not connected");
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 output = new PrintWriter(socket.getOutputStream(), true); // auto-flush enabled
                 input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                runOnUiThread(() -> tvMessages.setText("Connected"));
+                runOnUiThread(() -> tvMessages.setText("Connected" +"\n"));
 
                 new Thread(new Thread2()).start();
             } catch (IOException e) {
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void run() {
-            output.println(message);
+            output.println(message);  // Gửi thông điệp tới client
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
